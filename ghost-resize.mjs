@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ channel: 'chrome', headless: false });
+const page = await browser.newPage({ viewport: { width: 1200, height: 760 } });
+await page.goto('http://localhost:5178/', { waitUntil: 'networkidle' });
+await page.waitForSelector('#enter-btn:not([disabled])');
+await page.click('#enter-btn');
+await page.waitForSelector('#hud:not(.hidden)');
+await page.waitForTimeout(4000);
+await page.screenshot({ path: '/tmp/ghost-before-resize.png' });
+await page.setViewportSize({ width: 1201, height: 761 });
+await page.waitForTimeout(1200);
+await page.setViewportSize({ width: 1200, height: 760 });
+await page.waitForTimeout(1200);
+await page.screenshot({ path: '/tmp/ghost-after-resize.png' });
+await browser.close();

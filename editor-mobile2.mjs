@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader'] });
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+const page = await context.newPage();
+await page.goto('http://localhost:5178/', { waitUntil: 'networkidle' });
+console.log('storage has:', await page.evaluate(() => localStorage.getItem('lumen.exhibition.v1') ? 'yes' : 'no'));
+await page.click('#start-edit');
+await page.waitForSelector('#editor.is-open');
+await page.waitForTimeout(800);
+console.log('ex title hidden?', await page.evaluate(() => document.querySelector('#editor-exhibition-form')?.hidden));
+await page.locator('.editor-work').first().click();
+await page.waitForTimeout(700);
+console.log('ex values:', await page.inputValue('#ex-title'), '|', await page.inputValue('#ex-intro'));
+console.log('title color:', await page.evaluate(() => { const el = document.querySelector('#ex-title'); const cs = getComputedStyle(el); return { color: cs.color, opacity: cs.opacity, font: cs.font, bg: cs.backgroundColor }; }));
+await page.screenshot({ path: '/tmp/gallery-editor-mobile-ex2.png' });
+await browser.close();

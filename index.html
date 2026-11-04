@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Chromatic Drift — Lumen Virtual Gallery</title>
+    <meta
+      name="description"
+      content="Chromatic Drift, a virtual exhibition of thirteen paintings by Mara Voss. Walk through the gallery, look closely, and stay a while."
+    />
+    <meta name="theme-color" content="#0b0a09" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene" aria-label="Interactive 3D gallery"></canvas>
+
+      <header id="hud" class="hud hidden" aria-hidden="true">
+        <div class="hud-brand">
+          <span class="wordmark">LUMEN</span>
+          <span class="hud-sep"></span>
+          <div class="hud-titles">
+            <h2 id="hud-title">Chromatic Drift</h2>
+            <p id="hud-meta">Mara Voss · Hall 01</p>
+          </div>
+        </div>
+        <div class="hud-actions">
+          <button id="edit-btn" class="icon-button" type="button" aria-label="Edit exhibition">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3Z" />
+              <path d="M13.5 6.5l3 3" />
+            </svg>
+          </button>
+          <button id="help-btn" class="icon-button" type="button" aria-label="About and controls">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9.6 9.2a2.5 2.5 0 1 1 3.6 2.3c-.8.5-1.2 1-1.2 1.9" />
+              <path d="M12 16.6v.1" />
+            </svg>
+          </button>
+          <button id="fs-btn" class="icon-button" type="button" aria-label="Toggle fullscreen">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div id="hud-hint" class="hint-pill hidden" aria-hidden="true">
+        <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span>
+        <span class="dot"></span>
+        <span>drag to look</span>
+        <span class="dot"></span>
+        <span>click a work</span>
+      </div>
+
+      <div id="minimap-wrap" class="minimap-wrap hidden" aria-hidden="true">
+        <canvas id="minimap" width="300" height="440"></canvas>
+      </div>
+
+      <div id="tooltip" class="tooltip" role="status" aria-live="polite">
+        <span id="tooltip-title" class="tooltip-title"></span>
+        <span id="tooltip-artist" class="tooltip-artist">Mara Voss</span>
+      </div>
+
+      <aside id="panel" class="panel" aria-hidden="true" aria-label="Artwork details">
+        <button id="panel-close" class="panel-close" type="button" aria-label="Close artwork details">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <div class="panel-scroll">
+          <figure class="panel-figure">
+            <img id="panel-image" alt="" />
+          </figure>
+          <div class="panel-body">
+            <p class="panel-index" id="panel-index"></p>
+            <h2 id="panel-title"></h2>
+            <p class="panel-artist"><span id="panel-artist">Mara Voss</span>, <span id="panel-year"></span></p>
+            <div class="panel-specs">
+              <p id="panel-medium"></p>
+              <p id="panel-dims"></p>
+            </div>
+            <p class="panel-desc" id="panel-desc"></p>
+            <div class="panel-nav">
+              <button id="prev-btn" type="button">← Previous</button>
+              <button id="next-btn" type="button">Next →</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div id="help" class="modal" aria-hidden="true" role="dialog" aria-label="About the exhibition">
+        <div class="modal-card">
+          <button id="help-close" class="modal-close" type="button" aria-label="Close help">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+          <p class="eyebrow" id="help-eyebrow">Lumen Virtual Gallery · Hall 01</p>
+          <h2 id="help-title">Chromatic Drift</h2>
+          <p class="modal-lede" id="help-lede">
+            Thirteen paintings by Mara Voss about light, weather, and the places colour goes when
+            you look away. The exhibition is free to wander and runs indefinitely.
+          </p>
+          <div class="controls-grid">
+            <div class="control-row">
+              <span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span>
+              <span>Walk through the hall</span>
+            </div>
+            <div class="control-row">
+              <span class="keys"><span class="mouse-icon"></span></span>
+              <span>Click and drag to look around</span>
+            </div>
+            <div class="control-row">
+              <span class="keys"><kbd>Shift</kbd></span>
+              <span>Move faster</span>
+            </div>
+            <div class="control-row">
+              <span class="keys"><span class="click-icon"></span></span>
+              <span>Click an artwork for details</span>
+            </div>
+            <div class="control-row">
+              <span class="keys"><kbd>Esc</kbd></span>
+              <span>Close a panel</span>
+            </div>
+            <div class="control-row">
+              <span class="keys"><kbd>E</kbd></span>
+              <span>Open curator mode</span>
+            </div>
+          </div>
+          <p class="modal-foot">
+            Curator mode lets you replace artwork images and edit every label with your own
+            material. Changes are stored in this browser. Built with Three.js.
+          </p>
+        </div>
+      </div>
+
+      <div id="editor" class="editor" aria-hidden="true" role="dialog" aria-label="Exhibition editor">
+        <div class="editor-shell">
+          <header class="editor-head">
+            <div class="editor-heading">
+              <p class="eyebrow">Curator mode</p>
+              <h2>Edit exhibition</h2>
+            </div>
+            <div class="editor-actions">
+              <input id="editor-import-file" type="file" accept="application/json,.json" hidden />
+              <button id="editor-export" class="editor-btn" type="button">Export</button>
+              <button id="editor-import" class="editor-btn" type="button">Import</button>
+              <button id="editor-reset" class="editor-btn" type="button">Reset</button>
+              <button id="editor-apply" class="editor-btn primary" type="button">Done</button>
+              <button id="editor-close" class="icon-button" type="button" aria-label="Close editor">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="editor-body">
+            <aside class="editor-sidebar">
+              <div class="editor-sidebar-head">
+                <span>Works</span>
+                <span id="editor-count">0</span>
+              </div>
+              <div id="editor-works" class="editor-works"></div>
+              <button id="editor-add" class="editor-add" type="button"><span>+</span> Add artwork</button>
+            </aside>
+
+            <div class="editor-panel">
+              <section id="editor-exhibition-form" class="editor-form-section">
+                <div class="editor-section-title">
+                  <h3>Exhibition</h3>
+                  <p>These fields title the room, the wall signage, and the landing screen.</p>
+                </div>
+                <div class="editor-fields">
+                  <label class="editor-field">
+                    <span>Title</span>
+                    <input id="ex-title" type="text" maxlength="60" />
+                  </label>
+                  <div class="editor-row">
+                    <label class="editor-field">
+                      <span>Artist</span>
+                      <input id="ex-artist" type="text" maxlength="60" />
+                    </label>
+                    <label class="editor-field">
+                      <span>Hall</span>
+                      <input id="ex-hall" type="text" maxlength="40" />
+                    </label>
+                  </div>
+                  <label class="editor-field">
+                    <span>Year</span>
+                    <input id="ex-year" type="text" maxlength="20" />
+                  </label>
+                  <label class="editor-field">
+                    <span>Introduction</span>
+                    <textarea id="ex-intro" rows="5" maxlength="600"></textarea>
+                  </label>
+                </div>
+              </section>
+
+              <section id="editor-artwork-form" class="editor-form-section" hidden>
+                <div class="editor-artwork-grid">
+                  <div class="editor-media">
+                    <div id="editor-drop" class="editor-drop" role="button" tabindex="0" aria-label="Replace artwork image">
+                      <img id="editor-image" alt="" />
+                      <span class="editor-drop-hint">Click or drop an image</span>
+                    </div>
+                    <input id="editor-file" type="file" accept="image/*" hidden />
+                    <p id="editor-image-meta" class="editor-note"></p>
+                    <div class="editor-media-actions">
+                      <button id="editor-replace" class="editor-btn" type="button">Replace image</button>
+                      <button id="editor-remove-image" class="editor-btn ghost" type="button">Use generated art</button>
+                    </div>
+                  </div>
+
+                  <div class="editor-fields">
+                    <label class="editor-field">
+                      <span>Title</span>
+                      <input id="f-title" type="text" maxlength="80" />
+                    </label>
+                    <div class="editor-row">
+                      <label class="editor-field">
+                        <span>Artist</span>
+                        <input id="f-artist" type="text" maxlength="60" />
+                      </label>
+                      <label class="editor-field">
+                        <span>Year</span>
+                        <input id="f-year" type="number" min="1000" max="2100" step="1" />
+                      </label>
+                    </div>
+                    <div class="editor-row">
+                      <label class="editor-field">
+                        <span>Medium</span>
+                        <input id="f-medium" type="text" maxlength="80" />
+                      </label>
+                      <label class="editor-field">
+                        <span>Dimensions</span>
+                        <input id="f-dimensions" type="text" maxlength="60" />
+                      </label>
+                    </div>
+                    <label class="editor-field">
+                      <span>Description</span>
+                      <textarea id="f-description" rows="5" maxlength="1200"></textarea>
+                    </label>
+
+                    <fieldset class="editor-placement">
+                      <legend>Placement</legend>
+                      <div class="editor-row">
+                        <label class="editor-field">
+                          <span>Wall</span>
+                          <select id="f-wall">
+                            <option value="left">Left wall</option>
+                            <option value="right">Right wall</option>
+                            <option value="back">Back wall</option>
+                          </select>
+                        </label>
+                        <label class="editor-field">
+                          <span id="editor-at-label">Position along side wall (m)</span>
+                          <input id="f-at" type="number" step="0.1" />
+                        </label>
+                      </div>
+                      <div class="editor-row">
+                        <label class="editor-field">
+                          <span>Width (m)</span>
+                          <input id="f-width" type="number" min="0.5" max="4" step="0.05" />
+                        </label>
+                        <label class="editor-field">
+                          <span>Height (m)</span>
+                          <input id="f-height" type="number" min="0.5" max="3.6" step="0.05" />
+                        </label>
+                      </div>
+                      <label class="editor-field">
+                        <span>Frame</span>
+                        <select id="f-frame">
+                          <option value="walnut">Walnut</option>
+                          <option value="black">Black</option>
+                          <option value="brass">Brass</option>
+                          <option value="ivory">Ivory</option>
+                        </select>
+                      </label>
+                    </fieldset>
+
+                    <div class="editor-danger">
+                      <button id="editor-delete" class="editor-btn danger" type="button">Delete artwork</button>
+                      <span class="editor-note">The exhibition must keep at least one work.</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <footer class="editor-foot">
+            <span id="editor-status">Changes are saved in this browser when you press Done.</span>
+            <span class="editor-foot-note">Images are compressed and stored locally.</span>
+          </footer>
+        </div>
+      </div>
+
+      <div id="start" class="start">
+        <div class="start-grain"></div>
+        <div class="start-top">
+          <div class="wordmark wordmark-large">LUMEN<span class="wordmark-mark">®</span></div>
+          <div class="start-top-right">
+            <p class="start-meta" id="start-meta">Virtual Gallery · Hall 01</p>
+            <button id="start-edit" class="text-button" type="button">Curate</button>
+          </div>
+        </div>
+        <div class="start-main">
+          <p class="eyebrow">Now on view</p>
+          <h1><span id="start-title-main">Chromatic</span><br id="start-title-break" /><em id="start-title-accent">Drift</em></h1>
+          <div class="start-byline">
+            <span class="rule"></span>
+            <p id="start-artist">Mara Voss</p>
+          </div>
+          <p class="start-intro" id="start-intro">
+            Thirteen paintings about light, weather, and the places colour goes when you look
+            away. Walk the hall, look closely, stay a while.
+          </p>
+          <div class="start-actions">
+            <button id="enter-btn" class="primary" type="button" disabled>
+              <span id="enter-label">Preparing gallery…</span>
+            </button>
+            <p class="start-hint">WASD to walk · drag to look · click a work</p>
+          </div>
+        </div>
+        <div class="start-foot">
+          <span>Free admission</span>
+          <span id="start-year">2026</span>
+          <span id="start-works">Thirteen works</span>
+        </div>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <div id="joystick" class="joystick" aria-hidden="true">
+        <div id="stick" class="stick"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
