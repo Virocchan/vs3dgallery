@@ -667,8 +667,8 @@ const specs: Array<Omit<ArtworkSpec, 'artist'>> = [
     frame: 'black',
   },
   {
-    id: 'chromatic-drift',
-    title: 'Chromatic Drift',
+    id: 'eternal',
+    title: 'Eternal',
     year: 2026,
     medium: 'Oil and pigment on linen',
     dimensions: '220 × 280 cm',

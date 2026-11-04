@@ -20,10 +20,10 @@ export interface Exhibition {
   artworks: ArtworkSpec[];
 }
 
-const STORAGE_KEY = 'lumen.exhibition.v1';
+const STORAGE_KEY = 'suvi.exhibition.v1';
 
 export const DEFAULT_SETTINGS: ExhibitionSettings = {
-  title: 'Chromatic Drift',
+  title: 'Eternal',
   artist: 'Mara Voss',
   hall: 'Hall 01',
   year: '2026',

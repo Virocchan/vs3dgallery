@@ -90,7 +90,7 @@ function applyChrome(next: Exhibition): void {
   startArtist.textContent = artist;
   startYear.textContent = settings.year;
   startWorks.textContent = countLabel(next.artworks.length);
-  helpEyebrow.textContent = `Lumen Virtual Gallery · ${hall}`;
+  helpEyebrow.textContent = `SuVi Virtual Gallery · ${hall}`;
   helpTitle.textContent = title;
   helpLede.textContent = settings.intro;
 
@@ -111,7 +111,7 @@ function applyChrome(next: Exhibition): void {
   startIntro.hidden = settings.intro.trim().length === 0;
   helpLede.hidden = settings.intro.trim().length === 0;
 
-  document.title = `${title} — Lumen Virtual Gallery`;
+  document.title = `${title} — SuVi Virtual Gallery`;
   const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
   if (description) {
     description.content = `${title}, a virtual exhibition by ${artist}. Walk through the gallery, look closely, and stay a while.`;

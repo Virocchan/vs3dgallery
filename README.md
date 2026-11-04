@@ -1,4 +1,4 @@
-# Lumen 3D Art Gallery — Chromatic Drift
+# SuVi 3D Art Gallery — Eternal
 
 An interactive, immersive 3D virtual art gallery built with **Three.js**, **TypeScript**, and **Vite**.
 
@@ -58,3 +58,4 @@ npm run preview
 ## 📄 License
 
 MIT
+
